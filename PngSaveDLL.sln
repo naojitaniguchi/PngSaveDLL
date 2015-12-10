@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PngSaveTest", "PngSaveTest\
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "PngSaveTestDll", "PngSaveTestDll\PngSaveTestDll.vcxproj", "{2F908608-8E6B-4D76-84A7-C509B09B9A93}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FileIOCheck", "FileIOCheck\FileIOCheck.vcxproj", "{B47F57DF-7E0A-4C23-B4F5-450A0BCA0A86}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{2F908608-8E6B-4D76-84A7-C509B09B9A93}.Release|x64.Build.0 = Release|x64
 		{2F908608-8E6B-4D76-84A7-C509B09B9A93}.Release|x86.ActiveCfg = Release|Win32
 		{2F908608-8E6B-4D76-84A7-C509B09B9A93}.Release|x86.Build.0 = Release|Win32
+		{B47F57DF-7E0A-4C23-B4F5-450A0BCA0A86}.Debug|x64.ActiveCfg = Debug|x64
+		{B47F57DF-7E0A-4C23-B4F5-450A0BCA0A86}.Debug|x64.Build.0 = Debug|x64
+		{B47F57DF-7E0A-4C23-B4F5-450A0BCA0A86}.Debug|x86.ActiveCfg = Debug|Win32
+		{B47F57DF-7E0A-4C23-B4F5-450A0BCA0A86}.Debug|x86.Build.0 = Debug|Win32
+		{B47F57DF-7E0A-4C23-B4F5-450A0BCA0A86}.Release|x64.ActiveCfg = Release|x64
+		{B47F57DF-7E0A-4C23-B4F5-450A0BCA0A86}.Release|x64.Build.0 = Release|x64
+		{B47F57DF-7E0A-4C23-B4F5-450A0BCA0A86}.Release|x86.ActiveCfg = Release|Win32
+		{B47F57DF-7E0A-4C23-B4F5-450A0BCA0A86}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

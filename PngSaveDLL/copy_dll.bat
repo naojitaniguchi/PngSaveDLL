@@ -1,0 +1,1 @@
+copy ..\x64\Release\PngSaveDLL.dll D:\work\UnityProject\WinNativePluginTest\Assets\Plugins\x86_64

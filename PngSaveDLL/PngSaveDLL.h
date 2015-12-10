@@ -24,5 +24,5 @@ PNGSAVEDLL_API int fnPngSaveDLL(void);
 extern "C" {
 	PNGSAVEDLL_API int CountUp(void);
 	PNGSAVEDLL_API int SaveTestPng(void);
-	PNGSAVEDLL_API int Save16BitPng(int image_width, int image_height, unsigned short *image_buffer, char *path);
+	PNGSAVEDLL_API int Save16BitPng(int image_width, int image_height, char *image_buffer, char *path);
 }

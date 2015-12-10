@@ -154,7 +154,7 @@ void write_png_file_generated_16bit(char* file_name)
 	fclose(fp);
 }
 
-void generate_16bit_png_data(int image_width, int image_hight, unsigned short *image_buf) {
+void generate_16bit_png_data(int image_width, int image_hight, char *image_buf) {
 
 	/* initialize stuff */
 	png_ptr_16bit = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
@@ -171,38 +171,70 @@ void generate_16bit_png_data(int image_width, int image_hight, unsigned short *i
 		PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
 
 
-	row_pointers_2x = (png_bytep *)malloc(sizeof(png_uint_16p) * height);
-	for (y = 0; y<height; y++)
+	row_pointers_2x = (png_bytep *)malloc(sizeof(png_bytep) * image_hight);
+	for (int y = 0; y<image_hight; y++)
 		row_pointers_2x[y] = (png_byte *)malloc(png_get_rowbytes(png_ptr_16bit, info_ptr_16bit));
 
-	unsigned short x_short;
-	for (y = 0; y<height; y++) {
+	for (int y = 0; y<image_hight; y++) {
 		png_byte* row = row_pointers_2x[y];
-		for (x = 0; x < width; x++) {
-			int pixel_pos = y * (image_width * 4) + x * 4;
+		for (int x = 0; x < image_width; x++) {
+			int pixel_pos = y * (image_width * 8) + x * 8;
+			//int pixel_pos = y * (image_width * 4) + x * 4;
 
-			// r
-			unsigned short color = image_buf[pixel_pos];
-			png_byte* ptr = &(row[x * 8]);
-			png_save_uint_16(ptr, color);
-
-			// g
-			color = image_buf[pixel_pos+1];
-			ptr = &(row[x * 8 + 2]);
-			png_save_uint_16(ptr, color);
-
-			// b
-			color = image_buf[pixel_pos + 2];
-			ptr = &(row[x * 8 + 4]);
-			png_save_uint_16(ptr, color);
-
-			// a
-			color = image_buf[pixel_pos + 3];
-			ptr = &(row[x * 8 + 6]);
-			png_save_uint_16(ptr, color);
+			for (int i = 0; i < 4; i++) {
+				png_byte* ptr = &(row[x * 8 + i * 2]);
+				ptr[0] = image_buf[pixel_pos + i * 2];
+				ptr[1] = image_buf[pixel_pos + i * 2 + 1];
+			}
 		}
 	}
 
+}
+
+int dump_buf( char *filename, int image_width, int image_height, char *image_buffer )
+{
+	FILE *fp;
+	int i;
+
+	if ((fp = fopen(filename, "w")) == NULL) {
+		printf("ファイルオープンエラー\n");
+		exit(EXIT_FAILURE);
+	}
+
+	int length = image_width * image_height * 8;
+	for (int i = 0; i < length; i++) {
+		fprintf(fp, "%d\n", image_buffer[i]);
+	}
+
+	/* ファイルクローズ */
+	fclose(fp);
+
+
+	return 0;
+}
+
+int dump_png_buf(char *filename, int image_width, int image_height)
+{
+	FILE *fp;
+	int i;
+
+	if ((fp = fopen(filename, "w")) == NULL) {
+		printf("ファイルオープンエラー\n");
+		exit(EXIT_FAILURE);
+	}
+
+	for (int y = 0; y<image_height; y++) {
+		png_byte* row = row_pointers_2x[y];
+		for (int x = 0; x < image_width*8; x++) {
+			fprintf(fp, "%d\n", row[x]);
+		}
+	}
+
+	/* ファイルクローズ */
+	fclose(fp);
+
+
+	return 0;
 }
 
 void write_png_file_16bit(char* file_name)
@@ -235,12 +267,16 @@ void write_png_file_16bit(char* file_name)
 
 	png_write_end(png_ptr_16bit, NULL);
 
+	fclose(fp);
+}
+
+void cleanHeap( int image_height) {
+
 	/* cleanup heap allocation */
-	for (y = 0; y<height; y++)
+	for (y = 0; y<image_height; y++)
 		free(row_pointers_2x[y]);
 	free(row_pointers_2x);
 
-	fclose(fp);
 }
 
 // This is an example of an exported variable
@@ -266,10 +302,19 @@ PNGSAVEDLL_API int SaveTestPng(void)
 	return 1;
 }
 
-PNGSAVEDLL_API int Save16BitPng(int image_width, int image_height, unsigned short *image_buffer, char *path)
+PNGSAVEDLL_API int Save16BitPng(int image_width, int image_height, char *image_buffer, char *path)
 {
+	dump_buf("image_buf_dump.txt", image_width, image_height, image_buffer);
+
 	generate_16bit_png_data(image_width, image_height, image_buffer);
+
+	dump_png_buf("png_buf_dump.txt", image_width, image_height);
+
 	write_png_file_16bit(path);
+	cleanHeap(image_height);
+
+	// generate_16bit_color();
+	// write_png_file_generated_16bit(path);
 
 	return 1;
 }
