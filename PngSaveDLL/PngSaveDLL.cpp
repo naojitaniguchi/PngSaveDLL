@@ -304,17 +304,14 @@ PNGSAVEDLL_API int SaveTestPng(void)
 
 PNGSAVEDLL_API int Save16BitPng(int image_width, int image_height, char *image_buffer, char *path)
 {
-	dump_buf("image_buf_dump.txt", image_width, image_height, image_buffer);
+	// dump_buf("image_buf_dump.txt", image_width, image_height, image_buffer);
 
 	generate_16bit_png_data(image_width, image_height, image_buffer);
 
-	dump_png_buf("png_buf_dump.txt", image_width, image_height);
+	// dump_png_buf("png_buf_dump.txt", image_width, image_height);
 
 	write_png_file_16bit(path);
 	cleanHeap(image_height);
-
-	// generate_16bit_color();
-	// write_png_file_generated_16bit(path);
 
 	return 1;
 }
