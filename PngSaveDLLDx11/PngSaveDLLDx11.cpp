@@ -44,7 +44,7 @@ png_infop info_ptr_16bit;
 png_bytep * row_pointers_2x;
 
 // for log file
-FILE *log_fp;
+FILE *log_fp = NULL;
 
 // --------------------------------------------------------------------------
 // UnitySetInterfaces
@@ -56,7 +56,7 @@ static void UNITY_INTERFACE_API OnGraphicsDeviceEvent(UnityGfxDeviceEventType ev
 static IUnityInterfaces* s_UnityInterfaces = NULL;
 static IUnityGraphics* s_Graphics = NULL;
 static UnityGfxRenderer s_DeviceType = kUnityGfxRendererNull;
-static void* g_TexturePointer = NULL;
+// static void* g_TexturePointer = NULL;
 
 extern "C" void	UNITY_INTERFACE_EXPORT UNITY_INTERFACE_API UnityPluginLoad(IUnityInterfaces* unityInterfaces)
 {
@@ -94,7 +94,7 @@ static void UNITY_INTERFACE_API OnGraphicsDeviceEvent(UnityGfxDeviceEventType ev
 	case kUnityGfxDeviceEventShutdown:
 	{
 		s_DeviceType = kUnityGfxRendererNull;
-		g_TexturePointer = NULL;
+		// g_TexturePointer = NULL;
 		break;
 	}
 
@@ -138,8 +138,11 @@ void png_save_uint_16(png_bytep buf, unsigned int i)
 
 void generate_16bit_color(void) {
 
-	width = 1920;
-	height = 1920;
+	width = 256;
+	height = 256;
+
+	//width = 1920;
+	//height = 1920;
 	/* initialize stuff */
 	png_ptr_16bit = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
 
@@ -462,11 +465,13 @@ float *getFloatBufferFromTexture(ID3D11Resource *pRes) {
 	D3D11_TEXTURE2D_DESC desc;
 	m_pTexture->GetDesc(&desc);
 
-	fprintf(log_fp, "Width %d\n", desc.Width);
-	fprintf(log_fp, "Width %d\n", desc.Height);
-	fprintf(log_fp, "MipLevels %d\n", desc.MipLevels);
-	fprintf(log_fp, "ArraySize %d\n", desc.ArraySize);
-	fprintf(log_fp, "Format %d\n", desc.Format);
+	//if (log_fp) {
+	//	fprintf(log_fp, "Width %d\n", desc.Width);
+	//	fprintf(log_fp, "Width %d\n", desc.Height);
+	//	fprintf(log_fp, "MipLevels %d\n", desc.MipLevels);
+	//	fprintf(log_fp, "ArraySize %d\n", desc.ArraySize);
+	//	fprintf(log_fp, "Format %d\n", desc.Format);
+	//}
 
 	ID3D11Texture2D* pNewTexture = NULL;
 	D3D11_TEXTURE2D_DESC description;
@@ -562,16 +567,16 @@ void	setWorldToRange(int image_width, int image_height, float *worldPtr, float x
 				xMax = worldPtr[index];
 			}
 			if (worldPtr[index + 1] < yMin) {
-				yMin = worldPtr[index];
+				yMin = worldPtr[index + 1];
 			}
 			if (worldPtr[index + 1] > yMax) {
-				yMax = worldPtr[index];
+				yMax = worldPtr[index + 1];
 			}
 			if (worldPtr[index + 2] < zMin) {
-				zMin = worldPtr[index];
+				zMin = worldPtr[index + 2];
 			}
 			if (worldPtr[index + 2] > zMax) {
-				zMax = worldPtr[index];
+				zMax = worldPtr[index + 2];
 			}
 		}
 	}
@@ -584,14 +589,21 @@ void	setWorldToRange(int image_width, int image_height, float *worldPtr, float x
 	float yRate = (yRangeMax - yRangeMin) / yOriginalRange;
 	float zRate = (zRangeMax - zRangeMin) / zOriginalRange;
 
+	//if (log_fp) {
+	//	fprintf(log_fp, "xMin %f, xMax %f, yMin %f, yMax %f, zMin %f, zMax %f\n", xMin, xMax, yMin, yMax, zMin, zMax );
+	//	fprintf(log_fp, "xOriginalRange %f, yOriginalRange %f, zOriginalRange %f\n", xOriginalRange, yOriginalRange, zOriginalRange);
+	//}
+
 	for (int i = 0; i < image_width * image_height; i++) {
 		int index = i * 4;
 		float x = ( worldPtr[index] - xMin ) * xRate ;
+		
 		worldPtr[index] = x;
 		float y = (worldPtr[index+1] - yMin) * yRate;
 		worldPtr[index + 1 ] = y;
 		float z = (worldPtr[index + 2] - zMin) * zRate;
 		worldPtr[index + 2] = z;
+
 	}
 
 }
@@ -599,7 +611,7 @@ void	setWorldToRange(int image_width, int image_height, float *worldPtr, float x
 PNGSAVEDLLDX11_API int Save16BitPngFromDXTexture(int image_width, int image_height, ID3D11Resource *pResWorld, ID3D11Resource *pResMask, char *path,
 	float xRangeMin, float xRangeMax, float yRangeMin, float yRangeMax, float zRangeMin, float zRangeMax )
 {
-	// open_log("log_file.txt");
+	//open_log("log_file.txt");
 
 	// fprintf(log_fp, "Save16BitPngFromDXTexture called\n");
 
@@ -609,12 +621,12 @@ PNGSAVEDLLDX11_API int Save16BitPngFromDXTexture(int image_width, int image_heig
 	addMaskToWorld(image_width, image_height, worldPtr, maskPtr);
 	setWorldToRange(image_width, image_height, worldPtr, xRangeMin, xRangeMax, yRangeMin, yRangeMax, zRangeMin, zRangeMax);
 
-	// close_log();
-
-	// clamp_data
+	//close_log();
 
 	generate_16bit_png_data_from_float(image_width, image_height, worldPtr);
+
 	write_png_file_16bit(path);
+
 	cleanHeap(image_height);
 
 	return 1;
