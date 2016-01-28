@@ -28,4 +28,5 @@ extern "C" {
 	PNGSAVEDLLDX11_API int Save16BitPng(int image_width, int image_height, char *image_buffer, char *path);
 	PNGSAVEDLLDX11_API int Save16BitPngFromDXTexture(int image_width, int image_height, ID3D11Resource *pResWorld, ID3D11Resource *pResMask, char *path,
 		float xRangeMin, float xRangeMax, float yRangeMin, float yRangeMax, float zRangeMin, float zRangeMax);
+	PNGSAVEDLLDX11_API int Save16BitPngFromDXColorTexture(int image_width, int image_height, ID3D11Resource *pResColor, char *path);
 }

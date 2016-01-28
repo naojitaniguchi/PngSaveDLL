@@ -327,6 +327,49 @@ void generate_16bit_png_data_from_float(int image_width, int image_hight, float 
 
 }
 
+void generate_16bit_color_png_data_from_float(int image_width, int image_hight, float *image_buf) {
+
+	/* initialize stuff */
+	png_ptr_16bit = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL, NULL, NULL);
+
+	if (!png_ptr_16bit)
+		abort_("[write_png_file] png_create_write_struct failed");
+
+	info_ptr_16bit = png_create_info_struct(png_ptr_16bit);
+	if (!info_ptr_16bit)
+		abort_("[write_png_file] png_create_info_struct failed");
+
+	png_set_IHDR(png_ptr_16bit, info_ptr_16bit, image_width, image_hight,
+		16, PNG_COLOR_TYPE_RGB_ALPHA, PNG_INTERLACE_NONE,
+		PNG_COMPRESSION_TYPE_BASE, PNG_FILTER_TYPE_BASE);
+
+
+	row_pointers_2x = (png_bytep *)malloc(sizeof(png_bytep) * image_hight);
+	for (int y = 0; y<image_hight; y++)
+		row_pointers_2x[y] = (png_byte *)malloc(png_get_rowbytes(png_ptr_16bit, info_ptr_16bit));
+
+	for (int y = 0; y<image_hight; y++) {
+		png_byte* row = row_pointers_2x[y];
+		for (int x = 0; x < image_width; x++) {
+			int pixel_pos = y * (image_width * 4) + x * 4;
+
+			for (int i = 0; i < 4; i++) {
+				png_byte* ptr = &(row[x * 8 + i * 2]);
+				float v = image_buf[pixel_pos + i] ;
+				if (v > 1.0f ) {
+					v = 1.0f;
+				}
+				if (v < 0.0f) {
+					v = 0.0f;
+				}
+				int iv = (int)(v * 65535.0f);
+				png_save_uint_16(ptr, iv);
+			}
+		}
+	}
+
+}
+
 int dump_buf(char *filename, int image_width, int image_height, char *image_buffer)
 {
 	FILE *fp;
@@ -632,6 +675,24 @@ PNGSAVEDLLDX11_API int Save16BitPngFromDXTexture(int image_width, int image_heig
 	return 1;
 }
 
+
+PNGSAVEDLLDX11_API int Save16BitPngFromDXColorTexture(int image_width, int image_height, ID3D11Resource *pResColor, char *path )
+{
+	//open_log("log_file.txt");
+
+	// fprintf(log_fp, "Save16BitPngFromDXTexture called\n");
+
+	float *colorPtr = getFloatBufferFromTexture(pResColor);
+
+	//close_log();
+
+	generate_16bit_color_png_data_from_float(image_width, image_height, colorPtr);
+	write_png_file_16bit(path);
+
+	cleanHeap(image_height);
+
+	return 1;
+}
 
 // This is the constructor of a class that has been exported.
 // see PngSaveDLLDx11.h for the class definition
